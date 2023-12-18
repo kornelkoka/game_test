@@ -1,22 +1,19 @@
-
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
-from ursina.prefabs.health_bar import HealthBar
 from ursina.shaders import lit_with_shadows_shader
+from ursina.prefabs.dropdown_menu import DropdownMenu, DropdownMenuButton
 
 
 app = Ursina()
 hand = Entity(model='cube', parent=camera, position=(.5,-.25,.25), scale=(.3,.2,1), origin_z=-.5, color=color.gray, on_cooldown=False, rotation = (0, 0, 0))
 sword = Entity(model="sword", parent=hand, position=(0, 0, 1), scale = 0.35, rotation = (0, 90, -8), texture = "Sword_texture")
-
+player = FirstPersonController()
+player.speed = 5
 random.seed(5)
 Entity.default_shader=lit_with_shadows_shader
 Entity(model='cube', y=1, shader=lit_with_shadows_shader)
 pivot = Entity()
 DirectionalLight(parent=pivot, y=2, z=3, shadows=True, rotation=(45, -45, 45))
-
-def change_voxel_textures(chosen):
-    return textures[chosen]
 
 
 
@@ -75,6 +72,7 @@ bed = Bed(position=(26, 0.5, 26))
             
 
 def input(key):
+    global player
     if key.isdigit():  
         new_texture = Voxel.texturing(key)  
         if new_texture:  
@@ -85,6 +83,20 @@ def input(key):
             Voxel(position=hit_info.entity.position + hit_info.normal, texture=voxel.texture)  
     elif key == 'right mouse down' and mouse.hovered_entity:
         destroy(mouse.hovered_entity)
+    elif key == "x":
+        player.enabled = not player.enabled
+        def increase_speed():
+            player.speed += 1
+
+        def decrease_speed():
+            player.speed -= 1
+
+        DropdownMenu(buttons=(
+            DropdownMenuButton("speed+", on_click=increase_speed),
+            DropdownMenuButton("speed-", on_click=decrease_speed),
+        ))
+        
+        
 
                 
         
@@ -93,5 +105,5 @@ Sky()
 
 
 
-player = FirstPersonController()
+
 app.run()
