@@ -11,6 +11,8 @@ sword = Entity(model="sword", parent=hand, position=(0, 0, 1), scale = 0.35, rot
 player = FirstPersonController()
 player.speed = 5
 player.jump_height = 4
+camera.ui_size = 40
+camera.fov = 135
 random.seed(5)
 Entity.default_shader=lit_with_shadows_shader
 Entity(model='cube', y=1, shader=lit_with_shadows_shader)
@@ -53,7 +55,7 @@ class Voxel(Button):
             color=color.color(0, 0, random.uniform(0.9, 1.0)),
             highlight_color=color.lime,
         )
-
+        self.collider = "box"
     @staticmethod
     def texturing(key):
         try:
@@ -68,15 +70,18 @@ for z in range(30):
         for y in range(1):
             voxel = Voxel(position=(x,y,z))
 
+    
+
+
 bed = Bed(position=(4, 0.5, 4))        
 bed = Bed(position=(26, 0.5, 26)) 
 
 
-            
 
 def input(key):
+    
     global player
-    global fov
+    
     if key.isdigit():  
         new_texture = Voxel.texturing(key)  
         if new_texture:  
@@ -88,8 +93,8 @@ def input(key):
     elif key == 'right mouse down' and mouse.hovered_entity:
         destroy(mouse.hovered_entity)
     elif key == "x":
-        fov = 10
         player.enabled = not player.enabled
+        
         def increase_speed():
             player.speed += 1
         def decrease_speed():
@@ -98,14 +103,24 @@ def input(key):
             player.jump_height -= 1
         def increase_jump():
             player.jump_height += 1
-
-        DropdownMenu(buttons=(
+        def decrease_fov():
+            camera.fov -= 5
+        def increase_fov():
+            camera.fov += 5
+        
+            
+        menu = DropdownMenu(buttons=(
             DropdownMenuButton("speed+", on_click=increase_speed),
             DropdownMenuButton("speed-", on_click=decrease_speed),
             DropdownMenuButton("jump+", on_click=increase_jump),
             DropdownMenuButton("jump-", on_click=decrease_jump),
-            
-        ))
+            DropdownMenuButton("fov+", on_click=increase_fov),
+            DropdownMenuButton("fov-", on_click=decrease_fov),
+            ))    
+        if player.enabled == True:
+            menu.close() 
+        else:
+            menu.open()
 
 
 Sky()
